@@ -121,9 +121,9 @@ class GFWeather:
         # 每天9：30左右给女朋友发送每日一句
         scheduler.add_job(self.start_today_info, 'cron', hour=self.alarm_hour,
                           minute=self.alarm_minute, misfire_grace_time=GRACE_PERIOD)
-        # 每隔 2 分钟发送一条数据用于测试。
-#         if DEBUG:
-        scheduler.add_job(self.start_today_info, 'interval', seconds=30)
+		
+		# 每隔 30 秒发送一条数据用于测试。
+        # scheduler.add_job(self.start_today_info, 'interval', seconds=30)
         scheduler.start()
 
     def start_today_info(self, is_test=False):
@@ -237,7 +237,12 @@ class GFWeather:
             # 今日天气
             today_weather = weatherJson.get('data').get('forecast')[0]
             # 今日日期
-            today_time = datetime.now().strftime('%Y{y}%m{m}%d{d} %H:%M:%S').format(y='年', m='月', d='日')
+            today_time = today_weather.get('ymd')
+            # 星期
+            week = today_weather.get('week')
+            # 天气
+            type = today_weather.get('type')
+            today_time = today_time+ '  '+week+'  '+type
             # 今日天气注意事项
             notice = today_weather.get('notice')
             # 温度
@@ -276,7 +281,7 @@ class GFWeather:
                 try:
                     start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
                     day_delta = (datetime.now() - start_datetime).days
-                    delta_msg = f'宝贝这是我们在一起的第 {day_delta} 天。\n'
+                    delta_msg = f'这是我们认识的第 {day_delta} 天。\n'
                 except:
                     delta_msg = ''
             else:
