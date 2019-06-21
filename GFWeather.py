@@ -123,7 +123,7 @@ class GFWeather:
                           minute=self.alarm_minute, misfire_grace_time=GRACE_PERIOD)
         # 每隔 2 分钟发送一条数据用于测试。
 #         if DEBUG:
-#             scheduler.add_job(self.start_today_info, 'interval', seconds=120)
+        scheduler.add_job(self.start_today_info, 'interval', seconds=30)
         scheduler.start()
 
     def start_today_info(self, is_test=False):
@@ -254,14 +254,29 @@ class GFWeather:
 
             # 空气指数
             aqi = today_weather.get('aqi')
-            aqi = f"空气 : {aqi}"
-
+			
+            if aqi>0 and aqi <=50:
+                aqi = f"空气 : 优"
+            elif aqi>50 and aqi <=100:
+                aqi = f"空气 : 良"
+            elif aqi>100 and aqi <=150:
+                aqi = f"空气 : 轻度污染"
+            elif aqi>150 and aqi <=200:
+                aqi = f"空气 : 中度污染"
+            elif aqi>200 and aqi <=300:
+                aqi = f"空气 : 重度污染"
+            elif aqi>=300:
+                aqi = f"空气 : 严重污染"				
+            else:
+                aqi = f"空气 : {aqi}"
+			
+            
             # 在一起，一共多少天了，如果没有设置初始日期，则不用处理
             if start_date:
                 try:
                     start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
                     day_delta = (datetime.now() - start_datetime).days
-                    delta_msg = f'宝贝这是我们在一起的第 {day_delta} 天。\n'
+                    delta_msg = f'亲爱的，这是我们在一起的第 {day_delta} 天。\n'
                 except:
                     delta_msg = ''
             else:
@@ -287,6 +302,6 @@ if __name__ == '__main__':
     # print(dictum)
 
     # 测试获取天气信息
-    wi = GFWeather().get_weather_info('sorry \n')
+    wi = GFWeather().get_weather_info(city_code='101210101', start_date='2019-03-03')
     print(wi)
     pass
