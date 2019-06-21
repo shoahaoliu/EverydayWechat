@@ -8,6 +8,9 @@ import yaml
 from apscheduler.schedulers.blocking import BlockingScheduler
 from bs4 import BeautifulSoup
 
+import  random
+from requests_html import HTMLSession
+
 import city_dict
 
 # fire the job again if it was missed within GRACE_PERIOD
@@ -123,7 +126,7 @@ class GFWeather:
                           minute=self.alarm_minute, misfire_grace_time=GRACE_PERIOD)
 		
 		# 每隔 30 秒发送一条数据用于测试。
-        # scheduler.add_job(self.start_today_info, 'interval', seconds=30)
+        scheduler.add_job(self.start_today_info, 'interval', seconds=30)
         scheduler.start()
 
     def start_today_info(self, is_test=False):
@@ -290,6 +293,63 @@ class GFWeather:
             today_msg = f'{today_time}\n{delta_msg}{notice}。\n{temperature}\n{wind}\n{aqi}\n{dictum_msg}{sweet_words if sweet_words else ""}\n'
             return today_msg
 
+    def get_rtjokes_info(self):
+        """
+        随机获取笑话段子列表(https://github.com/MZCretin/RollToolsApi#%E9%9A%8F%E6%9C%BA%E8%8E%B7%E5%8F%96%E7%AC%91%E8%AF%9D%E6%AE%B5%E5%AD%90%E5%88%97%E8%A1%A8)
+        :return: str,笑话。
+        """
+        print('获取随机笑话...')
+        try:
+            resp = requests.get('https://www.mxnzp.com/api/jokes/list/random')
+            # print(resp.text)
+            if resp.status_code == 200:
+                content_dict = resp.json()
+                if content_dict['code'] == 1:
+                    # 每次返回 10 条笑话信息，只取一次
+                    return_text = content_dict['data'][0]['content']
+                    # print(return_text)
+                    return return_text
+                else:
+                    print(content_dict['msg'])
+            print('获取笑话失败。')
+        except Exception as exception:
+            print(exception)
+            return None
+        return None
+
+    def get_zsh_info(self):
+        """
+        句子迷：（https://www.juzimi.com/）
+        朱生豪：https://www.juzimi.com/writer/朱生豪
+        爱你就像爱生命（王小波）：https://www.juzimi.com/article/爱你就像爱生命
+        三行情书：https://www.juzimi.com/article/25637
+        :return: str 情话
+        """
+        print('正在获取民国情话...')
+        try:
+
+            name = [
+                ['writer/朱生豪', 38, ],
+                ['article/爱你就像爱生命', 22],
+                ['article/25637', 55],
+            ]
+            apdix = random.choice(name)
+            # page 从零开始计数的。
+            url = 'https://www.juzimi.com/{}?page={}'.format(apdix[0], random.randint(1, apdix[1]))
+            # url = 'https://www.juzimi.com/article/爱你就像爱生命?page={}'.format(random.randint(1,22))
+            # print(url)
+            resp = HTMLSession().get(url)
+            if resp.status_code == 200:
+                results = resp.html.find('a.xlistju')
+                if results:
+                    re_text = random.choice(results).text
+                    if re_text and '\n' in re_text:
+                        re_text = re_text.replace('\n\n', '\n')
+                    return re_text
+            print('获取民国情话失败..')
+        except Exception as exception:
+            print(exception)
+
 
 if __name__ == '__main__':
     # 直接运行
@@ -307,6 +367,12 @@ if __name__ == '__main__':
     # print(dictum)
 
     # 测试获取天气信息
-    wi = GFWeather().get_weather_info(city_code='101210101', start_date='2019-03-03')
-    print(wi)
+    # wi = GFWeather().get_weather_info(city_code='101210101', start_date='2019-03-03')
+    # print(wi)
+    # 获取笑话
+    # rtjokes = GFWeather().get_rtjokes_info();
+    # print(rtjokes)
+
+    zsh_info = GFWeather().get_zsh_info()
+    print(zsh_info)
     pass
