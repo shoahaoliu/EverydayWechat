@@ -235,7 +235,7 @@ class GFWeather:
         if resp.status_code == 200 and self.isJson(resp) and resp.json().get('status') == 200:
             weatherJson = resp.json()
             # 今日天气
-            today_weather = weatherJson.get('data').get('forecast')[1]
+            today_weather = weatherJson.get('data').get('forecast')[0]
             # 今日日期
             today_time = datetime.now().strftime('%Y{y}%m{m}%d{d} %H:%M:%S').format(y='年', m='月', d='日')
             # 今日天气注意事项
@@ -287,6 +287,6 @@ if __name__ == '__main__':
     # print(dictum)
 
     # 测试获取天气信息
-    # wi = GFWeather().get_weather_info('sorry \n')
-    # print(wi)
+    wi = GFWeather().get_weather_info('sorry \n')
+    print(wi)
     pass
