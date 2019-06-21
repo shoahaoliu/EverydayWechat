@@ -276,7 +276,7 @@ class GFWeather:
                 try:
                     start_datetime = datetime.strptime(start_date, "%Y-%m-%d")
                     day_delta = (datetime.now() - start_datetime).days
-                    delta_msg = f'亲爱的，这是我们在一起的第 {day_delta} 天。\n'
+                    delta_msg = f'宝贝这是我们在一起的第 {day_delta} 天。\n'
                 except:
                     delta_msg = ''
             else:
